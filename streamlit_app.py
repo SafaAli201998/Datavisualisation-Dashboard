@@ -2,40 +2,38 @@
 st.title("🎈 Dashboard")
 st.write(
     "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
-)
+)  
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
 
-1 import os  
-2 import openai  
-3 import streamlit as st  
-4 import pandas as pd  
-5 from dotenv import load_dotenv  
-6  
-7 from pandasai import SmartDataframe  
-8 from pandasai.llm.openai import OpenAI  
-9  
-10 load_dotenv()  
-11 openai_api_key = os.environ["OPENAI_API_KEY"]  
-12 llm = OpenAI(api_token=openai_api_key)  
-13  
-14 st.title("Your Data Analysis")  
-15  
-16 uploaded_csv_file = st.file_uploader("Upload a csv file for analysis", type=['csv'])  
-17  
-18 if uploaded_csv_file is not None:  
-19  df = pd.read_csv(uploaded_csv_file)  
-20  sdf = SmartDataframe(df, config={"llm":llm})  
-21  st.write(sdf.head(4))  
-22  
-23 prompt = st.text_area("Enter your prompt")  
-24  
-25 if st.button("Generate"):  
-26  if prompt:  
-27  with st.spinner("Generating Response..."):  
-28  response = sdf.chat(prompt)  
-29  st.success(response)  
-30  st.set_option('deprecation.showPyplotGlobalUse', False)  
-31  st.pyplot()  
-32  else:  
-33  st.warning("Please enter a prompt")  
-34  
-35
+st.title("Simple Data Dashboard")
+
+uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+
+    st.subheader("Data Preview")
+    st.write(df.head())
+
+    st.subheader("Data Summary")
+    st.write(df.describe())
+
+    st.subheader("Filter Data")
+    columns = df.columns.tolist()
+    selected_column = st.selectbox("Select column to filter by", columns)
+    unique_values = df[selected_column].unique()
+    selected_value = st.selectbox("Select value", unique_values)
+
+    filtered_df = df[df[selected_column] == selected_value]
+    st.write(filtered_df)
+
+    st.subheader("Plot Data")
+    x_column = st.selectbox("Select x-axis column", columns)
+    y_column = st.selectbox("Select y-axis column", columns)
+
+    if st.button("Generate Plot"):
+        st.line_chart(filtered_df.set_index(x_column)[y_column])
+else:
+    st.write("Waiting on file upload...")
