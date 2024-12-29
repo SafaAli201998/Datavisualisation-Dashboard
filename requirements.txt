@@ -1,4 +1,7 @@
 streamlit
 numpy
 pandas
-
+os
+dotenv
+SmartDataframe
+openai
